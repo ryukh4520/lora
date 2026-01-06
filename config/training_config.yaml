@@ -1,0 +1,85 @@
+# Training Configuration
+training:
+  # Data Settings
+  dataset_name: "koalpaca"  # or "custom"
+  train_file: "data/processed/train.json"
+  validation_file: "data/processed/validation.json"
+  test_file: "data/processed/test.json"
+  
+  # Data Split Ratios
+  train_ratio: 0.8
+  validation_ratio: 0.1
+  test_ratio: 0.1
+  
+  # Training Hyperparameters
+  num_epochs: 20
+  batch_size: 1                      # Per device batch size
+  gradient_accumulation_steps: 16    # Effective batch size = 1 * 16 = 16
+  learning_rate: 2.0e-4              # LoRA 학습률 (일반적으로 높게 설정)
+  weight_decay: 0.01
+  warmup_steps: 100
+  max_grad_norm: 1.0                 # Gradient clipping
+  
+  # Optimization
+  optimizer: "adamw_torch"           # "adamw_torch", "adamw_8bit", "paged_adamw_8bit"
+  lr_scheduler_type: "cosine"        # "linear", "cosine", "constant"
+  
+  # Memory Optimization
+  gradient_checkpointing: true       # 메모리 절약 (학습 속도 약간 느려짐)
+  fp16: true                         # Mixed precision training
+  bf16: false                        # BF16 (A100 등에서 사용)
+  
+  # Logging & Checkpointing
+  logging_steps: 10
+  save_steps: 500
+  save_total_limit: 3                # 최대 체크포인트 개수
+  evaluation_strategy: "steps"       # "no", "steps", "epoch"
+  eval_steps: 500
+  
+  # Output Directories
+  output_dir: "outputs/checkpoints"
+  logging_dir: "outputs/logs"
+  
+  # Reproducibility
+  seed: 42
+  
+  # Early Stopping (optional)
+  early_stopping:
+    enabled: false
+    patience: 3
+    threshold: 0.01
+
+# Evaluation Settings
+evaluation:
+  # Metrics to compute
+  metrics:
+    - "perplexity"
+    - "bleu"
+    - "rouge"
+  
+  # Generation for qualitative evaluation
+  num_samples: 20
+  sample_prompts_file: "data/test_prompts.txt"
+  
+  # Output
+  results_dir: "outputs/eval"
+
+# Data Processing
+data_processing:
+  # Maximum sequence length
+  max_seq_length: 512
+  
+  # Instruction format (for instruction-following datasets)
+  instruction_template: |
+    ### Instruction:
+    {instruction}
+    
+    ### Response:
+    {response}
+  
+  # Preprocessing
+  remove_duplicates: true
+  shuffle: true
+  
+  # Sampling (for quick testing)
+  max_samples: null  # null for all data, or number for subset

@@ -1,0 +1,48 @@
+# Model Configuration
+model:
+  name: "gpt2"  # GPT-2 Small (124M parameters)
+  pretrained_model_name: "gpt2"
+  
+  # Tokenizer Settings
+  tokenizer:
+    max_length: 512
+    padding: "max_length"
+    truncation: true
+    add_special_tokens: true
+  
+  # Generation Settings (for inference)
+  generation:
+    max_new_tokens: 128
+    temperature: 0.7
+    top_p: 0.9
+    top_k: 50
+    do_sample: true
+    num_return_sequences: 1
+
+# LoRA Configuration
+lora:
+  r: 8                    # LoRA rank (낮을수록 파라미터 적음)
+  lora_alpha: 16          # LoRA scaling factor
+  lora_dropout: 0.05      # Dropout rate
+  bias: "none"            # Bias training: "none", "all", "lora_only"
+  task_type: "CAUSAL_LM"  # Task type
+  
+  # Target modules for LoRA (GPT-2 specific)
+  target_modules:
+    - "c_attn"            # Attention projection (Q, K, V combined in GPT-2)
+    - "c_proj"            # Attention output projection
+    # - "c_fc"            # MLP first layer (optional, increases params)
+    # - "c_proj"          # MLP second layer (optional)
+
+# Quantization (for memory efficiency)
+quantization:
+  load_in_8bit: false     # 8-bit quantization (QLoRA)
+  load_in_4bit: false     # 4-bit quantization (더 공격적, GPT-2는 작아서 불필요)
+  bnb_4bit_compute_dtype: "float16"
+  bnb_4bit_quant_type: "nf4"
+
+# Device Settings
+device:
+  use_cuda: true
+  cuda_device: 0
+  mixed_precision: "fp16"  # "no", "fp16", "bf16"
